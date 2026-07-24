@@ -1,0 +1,3 @@
+Hello Python!
+Welcome to Class 24.
+Let's learn file handling.

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gas metering management(DMD-Nararyanganj)</title>
+    <style>table, th, td { border: 1px solid black; border-collapse: collapse; padding: 8px; }</style>
+</head>
+<body>
+    <h1>METERING DASHBOARD</h1>
+    
+    <a href="{% url 'add_station' %}"><button>+ NEW STATION</button></a>
+    <a href="{% url 'add_metering_run' %}"><button>+ NEW METERING RUN</button></a>
+    <a href="{% url 'add_monthly_reading' %}"><button>+ MONTHLY READING INPUT</button></a>
+
+    <h2>lIST OF METERING STATION AND METERING RUN</h2>
+    {% for station in stations %}
+        <h3>STATION: {{ station.name }}</h3>
+        <table>
+            <tr>
+                <th>NAME OF METERING RUN</th><th>TYPE</th><th>SIZE</th><th>G-SERIES</th><th>EVC STATUS</th>
+            </tr>
+            {% for run in station.metering_runs.all %}
+            <tr>
+                <td>{{ run.name }}</td>
+                <td>{{ run.get_meter_type_display }}</td>
+                <td>{{ run.size_inch }} INCH</td>
+                <td>{{ run.g_series }}</td>
+                <td>{% if run.is_evc_active %}ACTIVE{% else %}INACTIVE{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+
+    <h2>MONTHLY GAS SUPPLY (Calculated Output)</h2>
+    <table>
+        <tr>
+            <th>STATION AND RUN NAME</th><th>MONTH</th><th>Vbt DIFFENCE</th><th>Vmt DIFFERENCE</th><th>MECHANICAL DIFFERENCE</th><th>TOTAL SUPPLY (m³)</th>
+        </tr>
+        {% for reading in readings %}
+        <tr>
+            <td>{{ reading.metering_run }}</td>
+            <td>{{ reading.month_year|date:"F Y" }}</td>
+            <td>{{ reading.end_vbt|yesno:",-" }}{{ reading.end_vbt }} (শুরু: {{ reading.start_vbt }})</td>
+            <td>{{ reading.end_vmt }}</td>
+            <td>{{ reading.end_mechanical }}</td>
+            <td><strong>{{ reading.total_flow|floatformat:2 }}</strong></td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

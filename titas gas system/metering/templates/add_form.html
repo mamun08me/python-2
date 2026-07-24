@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h2>{{ title }}</h2>
+    <form method="POST" id="readingForm" data-runs-url="{% url 'ajax_load_metering_runs' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">সংরক্ষণ করুন</button>
+    </form>
+    <br>
+    <a href="{% url 'dashboard' %}">ড্যাশবোর্ডে ফিরে যান</a>
+
+    <!-- ডাইনামিক ড্রপডাউন লজিকের জন্য জাভাস্ক্রিপ্ট -->
+    <script>
+        const stationSelect = document.querySelector("#id_station");
+        const runSelect = document.querySelector("#id_metering_run");
+        const form = document.querySelector("#readingForm");
+
+        if (stationSelect && runSelect) {
+            stationSelect.addEventListener("change", function () {
+                const url = form.getAttribute("data-runs-url");
+                const stationId = this.value;
+
+                if (!stationId) {
+                    runSelect.innerHTML = '<option value="">---------</option>';
+                    return;
+                }
+
+                // ব্যাকএন্ড থেকে ডাটা আনার জন্য ফেচ (Fetch API) রিকোয়েস্ট
+                fetch(`${url}?station_id=${stationId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let options = '<option value="">-- মিটারিং রান বাছুন --</option>';
+                        data.forEach(run => {
+                            options += `<option value="${run.id}">${run.name}</option>`;
+                        });
+                        runSelect.innerHTML = options;
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
